@@ -98,7 +98,7 @@ void boardSetupClock(void)
 
   [[maybe_unused]] enum Result res;
 
-  res = clockEnable(InternalLowSpeedOsc, NULL);
+  res = clockEnable(InternalLowSpeedOsc, nullptr);
   assert(res == E_OK);
   while (!clockReady(InternalLowSpeedOsc));
 
@@ -120,50 +120,50 @@ void boardSetup(struct Board *board)
 {
 #ifdef ENABLE_WDT
   board->watchdog = init(Iwdg, &wdtConfig);
-  assert(board->watchdog != NULL);
+  assert(board->watchdog != nullptr);
 #else
   (void)wdtConfig;
-  board->watchdog = NULL;
+  board->watchdog = nullptr;
 #endif
 
   /* Work Queues */
 
   WQ_DEFAULT = init(WorkQueue, &workQueueConfig);
-  assert(WQ_DEFAULT != NULL);
+  assert(WQ_DEFAULT != nullptr);
 
   /* Indication */
 
   board->error = init(LedIndicator, &errorLedConfig);
-  assert(board->error != NULL);
+  assert(board->error != nullptr);
   board->status = init(LedIndicator, &portLedConfig);
-  assert(board->status != NULL);
+  assert(board->status != nullptr);
 
   /* Timers */
 
   board->baseTimer = init(GpTimer, &baseTimerConfig);
-  assert(board->baseTimer != NULL);
+  assert(board->baseTimer != nullptr);
 
   board->eventTimer = init(SysTick, &eventTimerConfig);
-  assert(board->eventTimer != NULL);
+  assert(board->eventTimer != nullptr);
 
   board->chronoTimer = init(LifetimeTimer32,
       &(struct LifetimeTimer32Config){board->baseTimer});
-  assert(board->chronoTimer != NULL);
+  assert(board->chronoTimer != nullptr);
 
   /* CAN */
 
   board->can = init(Can, &canConfig);
-  assert(board->can != NULL);
+  assert(board->can != nullptr);
 
   /* Serial */
 
   board->serial = init(SerialDma, &serialDmaConfig);
-  assert(board->serial != NULL);
+  assert(board->serial != nullptr);
 
   /* Create port hub and initialize all ports */
 
   board->hub = makeProxyHub(1);
-  assert(board->hub != NULL);
+  assert(board->hub != nullptr);
 
   const struct ProxyPortConfig proxyPortConfig = {
       .can = board->can,
@@ -171,7 +171,7 @@ void boardSetup(struct Board *board)
       .chrono = board->chronoTimer,
       .error = board->error,
       .status = board->status,
-      .settings = NULL,
+      .settings = nullptr,
       .number = SLCAN_PORT_1
   };
   [[maybe_unused]] const bool ready = proxyPortInit(&board->hub->ports[0],

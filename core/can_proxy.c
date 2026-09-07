@@ -105,15 +105,15 @@ static void changePortMode(struct CanProxy *proxy, enum CanProxyMode mode)
   switch (mode)
   {
     case SLCAN_MODE_ACTIVE:
-      ifSetParam(proxy->can, IF_CAN_ACTIVE, NULL);
+      ifSetParam(proxy->can, IF_CAN_ACTIVE, nullptr);
       break;
 
     case SLCAN_MODE_LOOPBACK:
-      ifSetParam(proxy->can, IF_CAN_LOOPBACK, NULL);
+      ifSetParam(proxy->can, IF_CAN_LOOPBACK, nullptr);
       break;
 
     default:
-      ifSetParam(proxy->can, IF_CAN_LISTENER, NULL);
+      ifSetParam(proxy->can, IF_CAN_LISTENER, nullptr);
       break;
   }
 
@@ -150,7 +150,7 @@ static uint8_t getInitialRate(const struct CanProxy *proxy)
 {
   uint8_t value = 0xF;
 
-  if (proxy->settings != NULL)
+  if (proxy->settings != nullptr)
   {
     const struct Settings * const settings = proxy->settings->data;
 
@@ -163,7 +163,7 @@ static uint8_t getInitialRate(const struct CanProxy *proxy)
 /*----------------------------------------------------------------------------*/
 static uint16_t getSerialNumber(const struct CanProxy *proxy)
 {
-  if (proxy->settings != NULL)
+  if (proxy->settings != nullptr)
     return (uint16_t)((const struct Settings *)proxy->settings->data)->serial;
   else
     return 0xFFFF;
@@ -497,7 +497,7 @@ static bool sendMessageGroup(struct CanProxy *proxy, uint8_t flags,
 {
   uint32_t rate;
 
-  if (proxy->chrono == NULL)
+  if (proxy->chrono == nullptr)
     return false;
   if (ifGetParam(proxy->can, IF_RATE, &rate) != E_OK || rate == 0)
     return false;
@@ -622,7 +622,7 @@ static bool setCustomRate(struct CanProxy *proxy, const char *request)
 /*----------------------------------------------------------------------------*/
 static bool setInitialRate(struct CanProxy *proxy, const char *request)
 {
-  if (proxy->settings != NULL)
+  if (proxy->settings != nullptr)
   {
     struct Settings * const settings = proxy->settings->data;
     const uint8_t value = hexToBin(request[1]);
@@ -631,7 +631,7 @@ static bool setInitialRate(struct CanProxy *proxy, const char *request)
       settings->initial[proxy->number] = value;
     else
       settings->initial[proxy->number] = -1;
-    settingsSave(proxy->settings, NULL, NULL);
+    settingsSave(proxy->settings, nullptr, nullptr);
 
     return true;
   }
@@ -666,14 +666,14 @@ static bool setRetransmissionMode(struct CanProxy *proxy, const char *request)
 /*----------------------------------------------------------------------------*/
 static bool setSerialNumber(struct CanProxy *proxy, const char *request)
 {
-  if (proxy->settings != NULL)
+  if (proxy->settings != nullptr)
   {
     struct Settings * const settings = proxy->settings->data;
 
     if (!isSerialNumberValid(settings->serial))
     {
       settings->serial = inPlaceHexToBin4(&request[1]);
-      settingsSave(proxy->settings, NULL, NULL);
+      settingsSave(proxy->settings, nullptr, nullptr);
       return true;
     }
   }
@@ -684,9 +684,9 @@ static bool setSerialNumber(struct CanProxy *proxy, const char *request)
 static enum Result proxyInit(void *object, const void *configBase)
 {
   const struct CanProxyConfig * const config = configBase;
-  assert(config != NULL);
-  assert(config->can != NULL);
-  assert(config->serial != NULL);
+  assert(config != nullptr);
+  assert(config->can != nullptr);
+  assert(config->serial != nullptr);
 
   struct CanProxy * const proxy = object;
 
@@ -716,8 +716,8 @@ static void proxyDeinit(void *object)
 {
   struct CanProxy * const proxy = object;
 
-  ifSetCallback(proxy->serial, NULL, NULL);
-  ifSetCallback(proxy->can, NULL, NULL);
+  ifSetCallback(proxy->serial, nullptr, nullptr);
+  ifSetCallback(proxy->can, nullptr, nullptr);
 }
 /*----------------------------------------------------------------------------*/
 void canProxyChangeMode(struct CanProxy *proxy, enum CanProxyMode mode)

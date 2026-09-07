@@ -35,14 +35,14 @@ bool settingsReadByIndex(const struct Settings *settings, uint16_t index,
   {
     assert(strlen(ENTRY_MAP[index].name) <= CONFIG_NAME_LENGTH);
 
-    if (min != NULL)
+    if (min != nullptr)
       *min = ENTRY_MAP[index].min;
-    if (max != NULL)
+    if (max != nullptr)
       *max = ENTRY_MAP[index].max;
-    if (name != NULL)
+    if (name != nullptr)
       strcpy(name, ENTRY_MAP[index].name);
 
-    if (value != NULL)
+    if (value != nullptr)
       *value = settings->overlay[index];
     return true;
   }
@@ -110,7 +110,7 @@ bool settingsInit(struct SettingsContext *context, struct Interface *memory,
     uint32_t offset, void *data, size_t size)
 {
   context->buffer = malloc(size + sizeof(ChecksumType));
-  if (context->buffer == NULL)
+  if (context->buffer == nullptr)
     return false;
 
   context->memory = memory;
@@ -118,8 +118,8 @@ bool settingsInit(struct SettingsContext *context, struct Interface *memory,
   context->data = data;
   context->size = size;
 
-  context->callback = NULL;
-  context->argument = NULL;
+  context->callback = nullptr;
+  context->argument = nullptr;
   context->direction = false;
 
   return true;
@@ -137,7 +137,7 @@ void settingsLoad(struct SettingsContext *context,
   context->argument = argument;
   context->direction = false;
 
-  ifSetParam(context->memory, IF_ZEROCOPY, NULL);
+  ifSetParam(context->memory, IF_ZEROCOPY, nullptr);
   ifSetCallback(context->memory, onMemoryEvent, context);
   ifSetParam(context->memory, IF_POSITION, &context->offset);
   ifRead(context->memory, context->buffer,
@@ -157,7 +157,7 @@ void settingsSave(struct SettingsContext *context,
   memcpy(context->buffer, context->data, context->size);
   memcpy(context->buffer + context->size, &checksum, sizeof(checksum));
 
-  ifSetParam(context->memory, IF_ZEROCOPY, NULL);
+  ifSetParam(context->memory, IF_ZEROCOPY, nullptr);
   ifSetCallback(context->memory, onMemoryEvent, context);
   ifSetParam(context->memory, IF_POSITION, &context->offset);
   ifWrite(context->memory, context->buffer,
@@ -167,10 +167,10 @@ void settingsSave(struct SettingsContext *context,
 static void onMemoryEvent(void *argument)
 {
   struct SettingsContext * const context = argument;
-  const enum Result status = ifGetParam(context->memory, IF_STATUS, NULL);
+  const enum Result status = ifGetParam(context->memory, IF_STATUS, nullptr);
   bool success = (status == E_OK);
 
-  ifSetCallback(context->memory, NULL, NULL);
+  ifSetCallback(context->memory, nullptr, nullptr);
 
   if (status == E_OK && !context->direction)
   {
@@ -183,6 +183,6 @@ static void onMemoryEvent(void *argument)
       success = false;
   }
 
-  if (context->callback != NULL)
+  if (context->callback != nullptr)
     context->callback(context->argument, success);
 }

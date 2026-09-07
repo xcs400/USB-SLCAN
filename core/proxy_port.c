@@ -42,7 +42,7 @@ struct ProxyHub *makeProxyHub(size_t size)
   struct ProxyHub * const hub = malloc(sizeof(struct ProxyHub)
       + size * sizeof(struct ProxyPort));
 
-  if (hub != NULL)
+  if (hub != nullptr)
     hub->size = size;
 
   return hub;
@@ -77,7 +77,7 @@ bool proxyPortInitTemplate(struct ProxyPort *port,
   port->mode.next = SLCAN_MODE_DISABLED;
 
   port->proxy = init(type, &proxyConfig);
-  return port->proxy != NULL;
+  return port->proxy != nullptr;
 }
 /*----------------------------------------------------------------------------*/
 bool proxyPortChangeMode(struct ProxyPort *port, enum CanProxyMode mode,

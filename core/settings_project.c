@@ -15,7 +15,7 @@ const struct SettingsEntry ENTRY_MAP[] = {
 };
 
 static_assert(ARRAY_SIZE(ENTRY_MAP) ==
-    ARRAY_SIZE(((struct Settings *)NULL)->overlay), "Incorrect overlay");
+    ARRAY_SIZE(((struct Settings *)nullptr)->overlay), "Incorrect overlay");
 /*----------------------------------------------------------------------------*/
 void makeSerialNumber(char *output, int32_t input)
 {

@@ -202,7 +202,7 @@ void boardMakeUsbStrings(struct Usb *usb, const char *number)
   const IrqState state = irqSave();
 
   /* USB Strings */
-  usbDevStringAppend(usb, usbStringBuild(customStringHeader, NULL,
+  usbDevStringAppend(usb, usbStringBuild(customStringHeader, nullptr,
       USB_STRING_HEADER, 0));
 
   if (strlen(getUsbVendorString()) > 0)
@@ -215,7 +215,7 @@ void boardMakeUsbStrings(struct Usb *usb, const char *number)
     usbDevStringAppend(usb, usbStringBuild(customStringWrapper,
         getUsbProductString(), USB_STRING_PRODUCT, 0));
   }
-  if (number != NULL && strlen(number) > 0)
+  if (number != nullptr && strlen(number) > 0)
   {
     usbDevStringAppend(usb, usbStringBuild(customStringWrapper,
         number, USB_STRING_SERIAL, 0));
@@ -230,7 +230,7 @@ struct Watchdog *boardMakeWatchdog(void)
       .period = 1000
   };
 
-  clockEnable(InternalLowSpeedOsc, NULL);
+  clockEnable(InternalLowSpeedOsc, nullptr);
   while (!clockReady(InternalLowSpeedOsc));
 
   return init(Iwdg, &iwdgConfig);
@@ -241,7 +241,7 @@ bool boardSetupMemoryPackage(struct MemoryPackage *package)
   struct Interface * const i2c = boardMakeI2C();
   struct Timer * const timer = boardMakeMemoryTimer();
 
-  if (i2c == NULL || timer == NULL)
+  if (i2c == nullptr || timer == nullptr)
     return false;
 
   const struct M24Config memoryConfig = {
@@ -255,7 +255,7 @@ bool boardSetupMemoryPackage(struct MemoryPackage *package)
   };
   struct Interface * const memory = init(M24, &memoryConfig);
 
-  if (memory != NULL)
+  if (memory != nullptr)
   {
     m24SetUpdateWorkQueue(memory, WQ_LP);
 

@@ -18,7 +18,7 @@ const struct IndicatorClass * const LedIndicator =
     &(const struct IndicatorClass){
     .size = sizeof(struct LedIndicator),
     .init = indInit,
-    .deinit = NULL,
+    .deinit = nullptr,
     .increment = indIncrement,
     .relax = indRelax,
     .set = indSet,
@@ -28,7 +28,7 @@ const struct IndicatorClass * const LedIndicator =
 static enum Result indInit(void *object, const void *configBase)
 {
   const struct LedIndicatorConfig * const config = configBase;
-  assert(config != NULL);
+  assert(config != nullptr);
 
   struct LedIndicator * const indicator = object;
 

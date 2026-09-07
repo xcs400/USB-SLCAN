@@ -54,7 +54,7 @@ static void panic(struct Pin led, struct Watchdog *watchdog)
 {
   while (1)
   {
-    if (watchdog != NULL)
+    if (watchdog != nullptr)
       watchdogReload(watchdog);
 
     pinToggle(led);
@@ -68,46 +68,46 @@ void appBoardInit(struct Board *board)
   pinOutput(led, false);
 
   if (!boardSetupClock())
-    panic(led, NULL);
+    panic(led, nullptr);
 
 #ifdef ENABLE_WDT
   board->watchdog = boardMakeWatchdog();
-  if (board->watchdog == NULL)
-    panic(led, NULL);
+  if (board->watchdog == nullptr)
+    panic(led, nullptr);
 #else
-  board->watchdog = NULL;
+  board->watchdog = nullptr;
 #endif
 
   /* Initialize Work Queues */
 
   boardSetupDefaultWQ();
   boardSetupLowPriorityWQ();
-  if (WQ_DEFAULT == NULL || WQ_LP == NULL)
+  if (WQ_DEFAULT == nullptr || WQ_LP == nullptr)
     panic(led, board->watchdog);
 
   /* Timers */
 
   board->chronoTimer = boardMakeChronoTimer();
-  if (board->chronoTimer == NULL)
+  if (board->chronoTimer == nullptr)
     panic(led, board->watchdog);
 
   board->eventTimer = boardMakeEventTimer();
-  if (board->eventTimer == NULL)
+  if (board->eventTimer == nullptr)
     panic(led, board->watchdog);
 
   /* CAN */
 
   board->can = boardMakeCan();
-  if (board->can == NULL)
+  if (board->can == nullptr)
     panic(led, board->watchdog);
 
   /* USB */
 
   board->usb = boardMakeUsb();
-  if (board->usb == NULL)
+  if (board->usb == nullptr)
     panic(led, board->watchdog);
   board->serial = boardMakeSerial(board->usb);
-  if (board->serial == NULL)
+  if (board->serial == nullptr)
     panic(led, board->watchdog);
 
   /* I2C and parameter storage, start Low-Priority Work Queue */
@@ -122,16 +122,16 @@ void appBoardInit(struct Board *board)
   /* Indication */
 
   board->error = init(LedIndicator, &errorLedConfig);
-  if (board->error == NULL)
+  if (board->error == nullptr)
     panic(led, board->watchdog);
   board->status = init(LedIndicator, &portLedConfig);
-  if (board->status == NULL)
+  if (board->status == nullptr)
     panic(led, board->watchdog);
 
   /* Create port hub and initialize all ports */
 
   board->hub = makeProxyHub(1);
-  if (board->hub == NULL)
+  if (board->hub == nullptr)
     panic(led, board->watchdog);
 
   const struct ProxyPortConfig proxyPortConfig = {
