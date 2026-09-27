@@ -11,6 +11,7 @@
 #include "indicator.h"
 /*----------------------------------------------------------------------------*/
 struct Indicator;
+struct Watchdog;
 
 struct ProxyPortConfig
 {
@@ -44,6 +45,7 @@ struct ProxyHub
 /*----------------------------------------------------------------------------*/
 BEGIN_DECLS
 
+void hubIndicatorUpdate(struct ProxyHub *, struct Watchdog *);
 struct ProxyHub *makeProxyHub(size_t);
 void proxyPortDeinit(struct ProxyPort *);
 bool proxyPortInit(struct ProxyPort *, const struct ProxyPortConfig *);

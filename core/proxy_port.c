@@ -6,6 +6,7 @@
 
 #include "indicator.h"
 #include "proxy_port.h"
+#include <halm/watchdog.h>
 #include <assert.h>
 #include <stdlib.h>
 /*----------------------------------------------------------------------------*/
@@ -35,6 +36,49 @@ static void onProxyEvent(void *object, enum CanProxyMode mode,
 
     port->mode.next = mode;
   }
+}
+/*----------------------------------------------------------------------------*/
+void hubIndicatorUpdate(struct ProxyHub *hub, struct Watchdog *watchdog)
+{
+  assert(hub->size > 0);
+
+  static const unsigned int eventRateDecimation = 25;
+  static unsigned int iteration = 0;
+  static bool phase = true;
+
+  struct Indicator * const error = hub->ports[0].error;
+  bool blink = false;
+
+  if (!iteration--)
+  {
+    iteration = eventRateDecimation;
+    phase = !phase;
+    blink = true;
+  }
+
+  for (size_t i = 0; i < hub->size; ++i)
+  {
+    struct ProxyPort * const port = &hub->ports[i];
+
+    if (port->mode.current != port->mode.next && blink && phase)
+      port->mode.current = port->mode.next;
+
+    if (port->mode.current == SLCAN_MODE_DISABLED)
+    {
+      if (blink)
+        indicatorRelax(port->status, phase);
+    }
+    else
+      indicatorSpin(port->status);
+
+    if (hub->ports[i].error != error)
+      indicatorSpin(hub->ports[i].error);
+  }
+
+  indicatorSpin(error);
+
+  if (watchdog != nullptr)
+    watchdogReload(watchdog);
 }
 /*----------------------------------------------------------------------------*/
 struct ProxyHub *makeProxyHub(size_t size)

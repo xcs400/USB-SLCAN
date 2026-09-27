@@ -20,6 +20,7 @@
 #define MEMORY_OFFSET 0
 /*----------------------------------------------------------------------------*/
 static void onConfigLoaded(void *, bool);
+static void onTimerEventCallback(void *);
 static void panic(struct Pin, struct Watchdog *);
 /*----------------------------------------------------------------------------*/
 static const struct LedIndicatorConfig errorLedConfig = {
@@ -48,6 +49,12 @@ static void onConfigLoaded(void *argument, bool)
   }
 
   usbDevSetConnected(board->usb, true);
+}
+/*----------------------------------------------------------------------------*/
+static void onTimerEventCallback(void *argument)
+{
+  struct Board * const board = argument;
+  hubIndicatorUpdate(board->hub, board->watchdog);
 }
 /*----------------------------------------------------------------------------*/
 static void panic(struct Pin led, struct Watchdog *watchdog)
@@ -110,7 +117,7 @@ void appBoardInit(struct Board *board)
   if (board->serial == nullptr)
     panic(led, board->watchdog);
 
-  /* I2C and parameter storage, start Low-Priority Work Queue */
+  /* I2C and parameter storage */
 
   if (!boardSetupMemoryPackage(&board->memoryPackage))
     panic(led, board->watchdog);
@@ -151,6 +158,7 @@ int appBoardStart(struct Board *board)
 {
   timerSetOverflow(board->eventTimer,
       timerGetFrequency(board->eventTimer) / EVENT_RATE);
+  timerSetCallback(board->eventTimer, onTimerEventCallback, board);
 
   timerEnable(board->chronoTimer);
   timerEnable(board->eventTimer);

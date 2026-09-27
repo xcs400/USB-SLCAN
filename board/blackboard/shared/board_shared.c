@@ -51,12 +51,6 @@ static void customStringWrapper(const void *argument, enum UsbLangId,
 /*----------------------------------------------------------------------------*/
 bool boardSetupClock(void)
 {
-  static const struct BusClockConfig apbClockConfigFast = {
-      .divisor = 2
-  };
-  static const struct BusClockConfig apbClockConfigSlow = {
-      .divisor = 4
-  };
   static const struct ExternalOscConfig extOscConfig = {
       .frequency = 8000000
   };
@@ -69,9 +63,6 @@ bool boardSetupClock(void)
       .multiplier = 42,
       .source = CLOCK_EXTERNAL
   };
-  static const struct SystemClockConfig systemClockConfigPll = {
-      .source = CLOCK_PLL
-  };
 
   if (clockEnable(ExternalOsc, &extOscConfig) != E_OK)
     return false;
@@ -81,9 +72,9 @@ bool boardSetupClock(void)
     return false;
   while (!clockReady(MainPll));
 
-  clockEnable(Apb1Clock, &apbClockConfigSlow);
-  clockEnable(Apb2Clock, &apbClockConfigFast);
-  clockEnable(SystemClock, &systemClockConfigPll);
+  clockEnable(Apb1Clock, &(struct BusClockConfig){4});
+  clockEnable(Apb2Clock, &(struct BusClockConfig){2});
+  clockEnable(SystemClock, &(struct SystemClockConfig){CLOCK_PLL});
 
   clockEnable(MainClock, &mainClockConfig);
   return true;

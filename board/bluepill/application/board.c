@@ -82,6 +82,12 @@ static const struct WorkQueueConfig workQueueConfig = {
     .size = 2
 };
 /*----------------------------------------------------------------------------*/
+static void onTimerEventCallback(void *argument)
+{
+  struct Board * const board = argument;
+  hubIndicatorUpdate(board->hub, board->watchdog);
+}
+/*----------------------------------------------------------------------------*/
 void boardSetupClock(void)
 {
   static const struct ExternalOscConfig extOscConfig = {
@@ -91,9 +97,6 @@ void boardSetupClock(void)
       .divisor = 1,
       .multiplier = 9,
       .source = CLOCK_EXTERNAL
-  };
-  static const struct SystemClockConfig systemClockConfigPll = {
-      .source = CLOCK_PLL
   };
 
   [[maybe_unused]] enum Result res;
@@ -113,7 +116,7 @@ void boardSetupClock(void)
   clockEnable(Apb1Clock, &(struct BusClockConfig){2});
   clockEnable(Apb2Clock, &(struct BusClockConfig){1});
   clockEnable(MainClock, &(struct BusClockConfig){1});
-  clockEnable(SystemClock, &systemClockConfigPll);
+  clockEnable(SystemClock, &(struct SystemClockConfig){CLOCK_PLL});
 }
 /*----------------------------------------------------------------------------*/
 void boardSetup(struct Board *board)
@@ -183,6 +186,7 @@ int boardStart(struct Board *board)
 {
   timerSetOverflow(board->eventTimer,
       timerGetFrequency(board->eventTimer) / EVENT_RATE);
+  timerSetCallback(board->eventTimer, onTimerEventCallback, board);
 
   timerEnable(board->chronoTimer);
   timerEnable(board->eventTimer);
