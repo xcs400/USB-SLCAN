@@ -5,7 +5,6 @@
  */
 
 #include "board_shared.h"
-#include "version.h"
 #include <dpm/memory/m24.h>
 #include <halm/core/cortex/systick.h>
 #include <halm/generic/work_queue.h>
@@ -13,41 +12,20 @@
 #include <halm/platform/lpc/clocking.h>
 #include <halm/platform/lpc/i2c.h>
 #include <halm/platform/lpc/gptimer.h>
-#include <halm/platform/lpc/usb_device.h>
 #include <halm/platform/lpc/wdt.h>
-#include <halm/usb/cdc_acm.h>
-#include <halm/usb/usb.h>
-#include <halm/usb/usb_string.h>
-#include <string.h>
+#include <halm/platform/lpc/serial.h>
 /*----------------------------------------------------------------------------*/
 /* LPC17xx has 32 priority levels */
 
 #define PRI_CHRONO  5
 #define PRI_CAN     4
 /* PRI_GPDMA 3 */
-#define PRI_USB     2
+#define PRI_SERIAL  2
 #define PRI_I2C     1
 #define PRI_TIMER   1
 /* PRI_WQ_LP 0 */
 /*----------------------------------------------------------------------------*/
 DECLARE_WQ_IRQ(WQ_LP, SPI_ISR)
-/*----------------------------------------------------------------------------*/
-static void customStringHeader(const void *, enum UsbLangId,
-    struct UsbDescriptor *, void *);
-static void customStringWrapper(const void *, enum UsbLangId,
-    struct UsbDescriptor *, void *);
-/*----------------------------------------------------------------------------*/
-static void customStringHeader(const void *, enum UsbLangId,
-    struct UsbDescriptor *header, void *payload)
-{
-  usbStringHeader(header, payload, LANGID_ENGLISH_US);
-}
-/*----------------------------------------------------------------------------*/
-static void customStringWrapper(const void *argument, enum UsbLangId,
-    struct UsbDescriptor *header, void *payload)
-{
-  usbStringWrap(header, payload, argument);
-}
 /*----------------------------------------------------------------------------*/
 bool boardSetupClock(void)
 {
@@ -106,14 +84,14 @@ void boardSetupLowPriorityWQ(void)
 struct Interface *boardMakeCan(void)
 {
   static const struct CanConfig canConfig = {
-      .rate = 10000,
+      .rate = 250000,
       .rxBuffers = 32,
       /* TX buffer count should be at least SERIALIZED_QUEUE_SIZE */
       .txBuffers = 32,
-      .rx = PIN(0, 0),
-      .tx = PIN(0, 1),
+      .rx = PIN(0, 4),
+      .tx = PIN(0, 5),
       .priority = PRI_CAN,
-      .channel = 0
+      .channel = 1
   };
 
   return init(Can, &canConfig);
@@ -159,65 +137,20 @@ struct Interface *boardMakeI2C(void)
   return init(I2C, &i2cConfig);
 }
 /*----------------------------------------------------------------------------*/
-struct Interface *boardMakeSerial(struct Usb *usb)
+struct Interface *boardMakeSerial(void)
 {
-  /* CDC */
-  const struct CdcAcmConfig config = {
-      .device = usb,
-      .rxBuffers = 4,
-      .txBuffers = 8,
-
-      .endpoints = {
-          .interrupt = 0x81,
-          .rx = 0x02,
-          .tx = 0x82
-      }
-  };
-
-  return init(CdcAcm, &config);
-}
-/*----------------------------------------------------------------------------*/
-struct Usb *boardMakeUsb(void)
-{
-  static const struct UsbDeviceConfig usbConfig = {
-      .dm = PIN(0, 30),
-      .dp = PIN(0, 29),
-      .connect = PIN(2, 9),
-      .vbus = PIN(1, 30),
-      .vid = 0x2404,
-      .pid = 0x03EB,
-      .priority = PRI_USB,
+  static const struct SerialConfig config = {
+      .rxLength = 256,
+      .txLength = 256,
+      .rate = 115200,
+      .rx = PIN(0, 3),
+      .tx = PIN(0, 2),
+      .parity = SERIAL_PARITY_NONE,
+      .priority = PRI_SERIAL,
       .channel = 0
   };
 
-  return init(UsbDevice, &usbConfig);
-}
-/*----------------------------------------------------------------------------*/
-void boardMakeUsbStrings(struct Usb *usb, const char *number)
-{
-  const IrqState state = irqSave();
-
-  /* USB Strings */
-  usbDevStringAppend(usb, usbStringBuild(customStringHeader, nullptr,
-      USB_STRING_HEADER, 0));
-
-  if (strlen(getUsbVendorString()) > 0)
-  {
-    usbDevStringAppend(usb, usbStringBuild(customStringWrapper,
-        getUsbVendorString(), USB_STRING_VENDOR, 0));
-  }
-  if (strlen(getUsbProductString()) > 0)
-  {
-    usbDevStringAppend(usb, usbStringBuild(customStringWrapper,
-        getUsbProductString(), USB_STRING_PRODUCT, 0));
-  }
-  if (number != nullptr && strlen(number) > 0)
-  {
-    usbDevStringAppend(usb, usbStringBuild(customStringWrapper,
-        number, USB_STRING_SERIAL, 0));
-  }
-
-  irqRestore(state);
+  return init(Serial, &config);
 }
 /*----------------------------------------------------------------------------*/
 struct Watchdog *boardMakeWatchdog(void)

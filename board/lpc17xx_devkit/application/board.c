@@ -11,7 +11,6 @@
 #include <halm/core/cortex/nvic.h>
 #include <halm/delay.h>
 #include <halm/platform/lpc/backup_domain.h>
-#include <halm/usb/usb.h>
 #include <halm/watchdog.h>
 /*----------------------------------------------------------------------------*/
 #define EVENT_RATE    50
@@ -39,16 +38,11 @@ static void onConfigLoaded(void *argument, bool)
 {
   struct Board * const board = argument;
 
-  makeSerialNumber(board->number, board->config.serial);
-  boardMakeUsbStrings(board->usb, board->number);
-
   if (board->config.initial[0] != -1)
   {
     proxyPortChangeMode(&board->hub->ports[0], SLCAN_MODE_ACTIVE,
         slcanRatePresetToValue((unsigned int)board->config.initial[0]));
   }
-
-  usbDevSetConnected(board->usb, true);
 }
 /*----------------------------------------------------------------------------*/
 static void onTimerEventCallback(void *argument)
@@ -108,12 +102,9 @@ void appBoardInit(struct Board *board)
   if (board->can == nullptr)
     panic(led, board->watchdog);
 
-  /* USB */
+  /* Serial */
 
-  board->usb = boardMakeUsb();
-  if (board->usb == nullptr)
-    panic(led, board->watchdog);
-  board->serial = boardMakeSerial(board->usb);
+  board->serial = boardMakeSerial();
   if (board->serial == nullptr)
     panic(led, board->watchdog);
 

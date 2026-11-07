@@ -5,6 +5,9 @@
  */
 
 #include "board.h"
+#include <halm/delay.h>
+#include <halm/pin.h>
+#include <xcore/interface.h>
 #include <stdlib.h>
 /*----------------------------------------------------------------------------*/
 int main(void)
@@ -12,5 +15,17 @@ int main(void)
   struct Board * const board = malloc(sizeof(struct Board));
 
   appBoardInit(board);
+
+  struct Pin led = pinInit(PIN(1, 18));
+  pinOutput(led, false);
+  for (unsigned int i = 0; i < 200; ++i)
+  {
+    pinToggle(led);
+    mdelay(50);
+  }
+
+  static const char startupMessage[] = "USB-CAN MBED UART0 ready\r\n";
+  ifWrite(board->serial, startupMessage, sizeof(startupMessage) - 1);
+
   return appBoardStart(board);
 }

@@ -19,7 +19,6 @@
 /*----------------------------------------------------------------------------*/
 struct Interface;
 struct Timer;
-struct Usb;
 struct Watchdog;
 
 struct MemoryPackage
@@ -40,9 +39,7 @@ struct Timer *boardMakeChronoTimer(void);
 struct Timer *boardMakeEventTimer(void);
 struct Timer *boardMakeMemoryTimer(void);
 struct Interface *boardMakeI2C(void);
-struct Interface *boardMakeSerial(struct Usb *);
-struct Usb *boardMakeUsb(void);
-void boardMakeUsbStrings(struct Usb *, const char *);
+struct Interface *boardMakeSerial(void);
 struct Watchdog *boardMakeWatchdog(void);
 
 bool boardSetupMemoryPackage(struct MemoryPackage *);

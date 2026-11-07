@@ -14,7 +14,6 @@ struct ProxyHub;
 
 struct Board
 {
-  struct Usb *usb;
   struct Interface *can;
   struct Interface *serial;
   struct Timer *chronoTimer;
@@ -28,7 +27,6 @@ struct Board
   struct MemoryPackage memoryPackage;
   struct SettingsContext configContext;
   struct Settings config;
-  char number[SERIAL_NUMBER_LENGTH];
 };
 /*----------------------------------------------------------------------------*/
 void appBoardInit(struct Board *);
