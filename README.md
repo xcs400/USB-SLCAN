@@ -1,3 +1,5 @@
+
+
 # USB-CAN
 
 ![C23](https://img.shields.io/badge/C-23-blue)
@@ -32,8 +34,10 @@ The project is written in C (C23 standard) and uses CMake for the build system.
 
 * STM32 Blue Pill (STM32F1xx)
 * STM32 Black Board (STM32F4xx)
-* LPC17xx development board
+* MBED LPC17xx development board
 * LPC43xx development board (including flashless variants)
+
+
 
 ## Required Packages
 
@@ -74,20 +78,25 @@ are required:
 | PF9  | RX/TX LED |
 | PF10 | Error LED |
 
-### LPC17xx Development Board
+### LPC17xx Development Board  ->MBED +tranceiver CAN extern
 
-| Pin    | Function    |
-|--------|-------------|
-| P0[0]  | CAN0 RXD    |
-| P0[1]  | CAN0 TXD    |
-| P0[10] | I2C2 SDA    |
-| P0[11] | I2C2 SCL    |
-| P0[29] | USB DP      |
-| P0[30] | USB DM      |
-| P1[9]  | RX/TX LED   |
-| P1[10] | Error LED   |
-| P1[30] | USB VBUS    |
-| P2[9]  | USB CONNECT |
+| LPC17xx pin | Function       |
+|-------------|----------------|
+| P0[2]       | UART0 TX, 115200 baud |
+| P0[3]       | UART0 RX       |
+| P0[4]       | CAN1 RXD       |
+| P0[5]       | CAN1 TXD       |
+| P0[10]      | I2C2 SDA       |
+| P0[11]      | I2C2 SCL       |
+| P0[29]      | USB D+         |
+| P0[30]      | USB D-         |
+| P1[9]       | RX/TX LED      |
+| P1[10]      | Error LED      |
+| P1[30]      | USB VBUS       |
+| P2[9]       | USB CONNECT    |
+
+CAN1 RXD/TXD are logic-level signals: connect them to a CAN transceiver, not
+directly to the CAN bus. The UART pins provide the serial SLCAN interface.
 
 ### LPC43xx Development Board
 
@@ -138,6 +147,25 @@ mkdir build && cd build
 cmake .. -DPLATFORM=LPC17XX -DBOARD=lpc17xx_devkit -DCMAKE_TOOLCHAIN_FILE=libs/xcore/toolchains/cortex-m3.cmake -DCMAKE_BUILD_TYPE=Release -DUSE_DFU=ON -DUSE_LTO=ON -DUSE_WDT=ON
 make
 ```
+
+### VS Code Tasks for the MBED Board
+
+The workspace includes LPC17xx tasks in `.vscode/tasks.json`. In VS Code, run
+**Tasks: Run Task** and select one of the following:
+
+* **Configurer CMake (LPC17XX)** configures the `build` directory for the
+  `lpc17xx_devkit` board in Release mode with DFU disabled.
+* **Compiler (LPC17XX)** configures and builds the firmware.
+* **Copier application.bin sur MBED** builds the firmware and copies
+  `build/board/application.bin` to `/media/xcs400/MBED/`.
+* **Synchroniser MBED** builds, copies the firmware, then synchronizes the
+  mounted MBED drive.
+* **Terminal série (ttyACM0, 115200)** starts Minicom on `/dev/ttyACM0` at
+  115200 baud.
+
+These tasks use `flatpak-spawn --host`, so they expect VS Code to run as a
+Flatpak. Mount the MBED drive before using the copy or synchronization task. If
+its mount path differs, update the destination in `.vscode/tasks.json`.
 
 ### Build for LPC43xx Development Board
 
