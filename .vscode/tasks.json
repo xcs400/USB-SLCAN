@@ -1,0 +1,76 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Configurer CMake (LPC17XX)",
+      "type": "process",
+      "command": "flatpak-spawn",
+      "args": [
+        "--host",
+        "cmake",
+        "-S",
+        "${workspaceFolder}",
+        "-B",
+        "${workspaceFolder}/build",
+        "-DPLATFORM=LPC17XX",
+        "-DBOARD=lpc17xx_devkit",
+        "-DCMAKE_TOOLCHAIN_FILE=${workspaceFolder}/libs/xcore/toolchains/cortex-m3.cmake",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DUSE_DFU=OFF"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Compiler (LPC17XX)",
+      "type": "process",
+      "command": "flatpak-spawn",
+      "args": ["--host", "cmake", "--build", "${workspaceFolder}/build", "--parallel"],
+      "dependsOn": "Configurer CMake (LPC17XX)",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Copier application.bin sur MBED",
+      "type": "process",
+      "command": "flatpak-spawn",
+      "args": [
+        "--host",
+        "cp",
+        "${workspaceFolder}/build/board/application.bin",
+        "/media/xcs400/MBED/"
+      ],
+      "dependsOn": "Compiler (LPC17XX)",
+      "problemMatcher": []
+    },
+    {
+      "label": "Synchroniser MBED",
+      "type": "process",
+      "command": "flatpak-spawn",
+      "args": ["--host", "sync"],
+      "dependsOn": "Copier application.bin sur MBED",
+      "problemMatcher": []
+    },
+    {
+      "label": "Terminal série (ttyACM0, 115200)",
+      "type": "process",
+      "command": "flatpak-spawn",
+      "args": [
+        "--host",
+        "--env=TERM=xterm-256color",
+        "minicom",
+        "-D",
+        "/dev/ttyACM0",
+        "-b",
+        "115200"
+      ],
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
